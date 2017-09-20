@@ -1,21 +1,19 @@
 import React from 'react';
 import { storiesOf, action } from '@kadira/storybook';
+import {
+  withKnobs,
+  text, boolean, number, object,
+} from '@kadira/storybook-addon-knobs';
 import Button from '../index';
+import DocDisplay from '../components/docdisplay';
+import ipsum from '../components/ipsum.txt';
 
-storiesOf('Button', module)
-  .add('default view', () => (
-    <Button onClick={ action('button clicked') }>Hello</Button>
+const stories = storiesOf('DocDisplay', module);
+stories.addDecorator(withKnobs);
+
+stories.add('simple display', () => (
+    <DocDisplay text={text('text', 'hello world')} />
   ))
-  .add('some emojies as the text', () => (
-    <Button>😀 😎 👍 💯</Button>
-  ))
-  .add('custom styles', () => {
-    const style = {
-      fontSize: 20,
-      textTransform: 'uppercase',
-      color: '#FF8833',
-    };
-    return (
-      <Button style={ style }>Hello</Button>
-    );
-  });
+  .add('paragraphs of text', () => (
+    <DocDisplay text={text('text', ipsum)} />
+  ));
