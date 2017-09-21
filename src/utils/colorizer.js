@@ -7,120 +7,129 @@ const restOfPhraseMatcher = (text, idx, wordsInPhrase) => {
   return true;
 };
 
-/**
- * [description]
- * @param  {Array} text   [description]
- * @param  {[type]} id     [description]
- * @param  {[type]} phrase [description]
- * @return {[type]}        [description]
- */
-const updateStylesWithPhrase = (text, id, phrase, styleMap = []) => {
+const findPhrases = (text, id, phrase, phrases = []) => {
   const wordsInPhrase = phrase.split(' ');
-  if (wordsInPhrase.length < 1) return styleMap;
-
+  if (wordsInPhrase.length < 1) return phrases;
+  let phrasePointers;
   let cursor = text.indexOf(wordsInPhrase[0]);
   while (cursor >= 0) {
     if (restOfPhraseMatcher(text, cursor, wordsInPhrase)) {
       // @TODO es6 array functions here?
       const endOfPhrase = cursor + wordsInPhrase.length;
+      phrasePointers = [];
       for (let i = cursor; i < endOfPhrase; i++) {
-        if (!styleMap[i]) {
-          styleMap[i] = [];
-        }
-        styleMap[i].push(id);
+        phrasePointers.push(i);
       }
+      phrases.push({
+        id,
+        pointers: phrasePointers,
+      });
     }
     cursor = text.indexOf(wordsInPhrase[0], cursor + 1);
   }
-  return styleMap;
-};
+  return phrases;
+}
 
-const getStyleMap = (text, styleGuide) => {
+const getPhraseMap = (text, styleGuide) => {
   const textWords = text.split(' ');
-  const styleMap = [];
+  const phraseMap = [];
   styleGuide.forEach(({ phrases }, idx) => {
     phrases.forEach((phrase) => {
-      updateStylesWithPhrase(textWords, idx, phrase, styleMap);
+      findPhrases(textWords, idx, phrase, findPhrases);
     });
   });
-  return styleMap;
+  return phraseMap;
 };
 
-const writeWordsToSpan = (words, className = '') => {
-  const phrase = words.join(' ');
+const makeSpanByIndexes = (text, start, end, className = '') => {
+  const wordsToAdd = [];
+  for (let i = start; i <= end; i++) {
+    wordsToAdd.push(text[i]);
+  }
+  const phrase = wordsToAdd.join(' ');
   return ([<span className={className}>
     { phrase }
   </span>, <span>&nbsp;</span>]);
-}
+};
 
-const applyStyles = (text, styleMap, styleGuide) => {
-  console.log('applyStyles called with:', text);
-  let activeStyle = null;
 
+const applyStyles = (text, phraseMap, styleGuide) => {
+  // let activePhrase = null;
   const result = [];
-  let wordsInCurrentElement = [];
 
-  for (let i = 0; i < text.length; i++) {
-    // end any styles that don't apply to this word
-    if (activeStyle !== null) {
-      // check current style
-      if (!(styleMap[i] && styleMap[i].length > 0 && activeStyle === styleMap[i][0])) {
-        // style is changing; write to our results
-        result.push(...writeWordsToSpan(
-          wordsInCurrentElement, styleGuide[activeStyle].style
-        ));
+  // sort by its location in the text, then by id (phrase priority)
+  phraseMap.sort((a, b) => {
+    if (a.pointers[0] !== b.pointers[0]) {
+      return a.pointers[0] - b.pointers[0];
+    }
+    return a.id - b.id;
+  });
 
-        activeStyle = null;
-        wordsInCurrentElement = [];
-      }
-      else {
-        // same style; write word and move on
-        wordsInCurrentElement.push(text[i]);
-        continue;
-      }
+  let textCursor = 0;
+  let phraseStart;
+  let phraseEnd;
+
+  phraseMap.forEach(({id, pointers}) => {
+    phraseStart = pointers[0];
+    phraseEnd = pointers[pointers.length - 1];
+
+    if (textCursor < phraseStart) {
+      // make a span with any non-phrase words prior to the start of this phrase
+      result.push(...makeSpanByIndexes(
+        text, textCursor, phraseStart - textCursor - 1
+      ));
+    } else if (textCursor > phraseStart) {
+      // this phrase is lower priority than the previous one, and got cut off.
+      // in this case, pretend the phrase starts at textCursor instead of phraseStart
+      phraseStart = textCursor;
     }
 
+    // figure out how long this phrase should be, by checking for competing
+    // priorities.
 
-    if (styleMap[i]) {
-      // active style is null but we have a new style to use
-      if (wordsInCurrentElement.length > 0) {
-        result.push(...writeWordsToSpan(
-          wordsInCurrentElement
-        ));
-        wordsInCurrentElement = [];
+    // we can trust that the first one we find here will interrupt our phrase
+    // because we know phraseMap has been sorted.
+    const interruptingPhrase = phraseMap.find(({ id: compareId, pointers: comparePointers }) => {
+      if (compareId >= id) return false;
+      const compareStart = comparePointers[0];
+      if (compareStart > phraseStart && compareStart <= phraseEnd) {
+        return true;
       }
-      activeStyle = styleMap[i][0];
-      wordsInCurrentElement.push(text[i]);
-    } else {
-      // activeStyle is null, and this word does not have a style.
-      wordsInCurrentElement.push(text[i]);
-    }
-  }
+      return false;
+    });
 
-  // any last words?... heh heh
-  if (wordsInCurrentElement.length > 0) {
-    const lastStyle = activeStyle !== null
-        ? styleGuide[activeStyle].style
-        : '';
-    result.push(...writeWordsToSpan(
-      wordsInCurrentElement, lastStyle
+    if (interruptingPhrase) {
+      phraseEnd = interruptingPhrase.pointers[0] - 1;
+    }
+
+    // create our phrase
+    result.push(...makeSpanByIndexes(
+      text, phraseStart, phraseEnd, styleGuide[id].style
     ));
-    wordsInCurrentElement = [];
+
+    textCursor = phraseEnd + 1;
+  });
+
+  // any last words?...heh heh
+  if (textCursor <= text.length) {
+    result.push(...makeSpanByIndexes(
+      text, textCursor, text.length - 1
+    ));
   }
 
   return result;
-}
+};
 
-const colorize = (text, styleMap, styleGuide) => {
+const colorize = (text, phraseMap, styleGuide) => {
   return (<p> {
-    applyStyles(text.split(' '), styleMap, styleGuide)}
+    applyStyles(text.split(' '), phraseMap, styleGuide)}
   </p>);
 };
 
 export default {
-  updateStylesWithPhrase,
   restOfPhraseMatcher,
-  getStyleMap,
   applyStyles,
   colorize,
+  findPhrases,
+  getPhraseMap,
 };

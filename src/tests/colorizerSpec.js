@@ -30,51 +30,64 @@ describe('restOfPhraseMatcher', () => {
   });
 });
 
-describe('phraseMatcher', () => {
-  it('should create a stylesheet with my phrase', () => {
+describe('findPhrases', () => {
+  it('should create a phrase map with my phrase', () => {
     const text = "one two three four".split(' ');
     const id = 4;
     const phrase = "two three";
-    const stylesheet = colorizer.updateStylesWithPhrase(text, id, phrase);
-    expect(stylesheet[1][0]).to.be.equal(id);
-    expect(stylesheet[2][0]).to.be.equal(id);
+    const phraseMap = colorizer.findPhrases(text, id, phrase);
+
+    expect(phraseMap[0].id).to.be.equal(id);
+    expect(phraseMap[0].pointers[0]).to.be.equal(1);
+    expect(phraseMap[0].pointers.length).to.be.equal(2);
   });
   it('should find two phrases', () => {
     const text = "one two three four one two three four".split(' ');
     const id = "red";
     const phrase = "two three";
-    const stylesheet = colorizer.updateStylesWithPhrase(text, id, phrase);
-    expect(stylesheet[1][0]).to.be.equal(id);
-    expect(stylesheet[2][0]).to.be.equal(id);
-    expect(stylesheet[5][0]).to.be.equal(id);
-    expect(stylesheet[6][0]).to.be.equal(id);
+    const phraseMap = colorizer.findPhrases(text, id, phrase);
+
+    expect(phraseMap[0].id).to.be.equal(id);
+    expect(phraseMap[0].pointers[0]).to.be.equal(1);
+    expect(phraseMap[0].pointers[1]).to.be.equal(2);
+    expect(phraseMap[0].pointers.length).to.be.equal(2);
+
+    expect(phraseMap[1].id).to.be.equal(id);
+    expect(phraseMap[1].pointers[0]).to.be.equal(5);
+    expect(phraseMap[1].pointers[1]).to.be.equal(6);
+    expect(phraseMap[1].pointers.length).to.be.equal(2);
   });
   it('should handle overlapping phrases and passing by reference', () => {
     const text = "one two three four".split(' ');
-    const stylesheet = [];
-    colorizer.updateStylesWithPhrase(text, 'first', 'two three', stylesheet);
-    colorizer.updateStylesWithPhrase(text, 'second', 'three four', stylesheet);
-    expect(stylesheet[1][0]).to.be.equal('first');
-    expect(stylesheet[2][0]).to.be.equal('first');
-    expect(stylesheet[2][1]).to.be.equal('second');
-    expect(stylesheet[3][0]).to.be.equal('second');
-  })
+    const phraseMap = [];
+    colorizer.findPhrases(text, 'first', 'two three', phraseMap);
+    colorizer.findPhrases(text, 'second', 'three four', phraseMap);
+    expect(phraseMap[0].id).to.be.equal('first');
+    expect(phraseMap[0].pointers[0]).to.be.equal(1);
+    expect(phraseMap[0].pointers[1]).to.be.equal(2);
+    expect(phraseMap[0].pointers.length).to.be.equal(2);
+
+    expect(phraseMap[1].id).to.be.equal('second');
+    expect(phraseMap[1].pointers[0]).to.be.equal(2);
+    expect(phraseMap[1].pointers[1]).to.be.equal(3);
+    expect(phraseMap[1].pointers.length).to.be.equal(2);
+  });
 });
 
 describe('applyStyles', () => {
   it('should work ok', () => {
     const text = "one two three four".split(' ');
-    const styleMap = [
-      null,
-      [0],
-      [0],
-      null
+    const phraseMap = [
+      {
+        id: 0,
+        pointers: [1, 2]
+      }
     ];
     const styleGuide = [
       {style: 'red'}
     ];
-    const res = colorizer.applyStyles(text, styleMap, styleGuide);
-    console.log(res);
+    const res = colorizer.applyStyles(text, phraseMap, styleGuide)
+      .filter(({props}) => props.children.trim());
 
     expect(res[0].props.children).to.be.equal('one');
     expect(res[1].props.children).to.be.equal('two three');
@@ -87,17 +100,22 @@ describe('applyStyles', () => {
 
   it('should handle overlapping styles, priority up front', () => {
     const text = "one two three four".split(' ');
-    const styleMap = [
-      [0],
-      [0, 1],
-      [1],
+    const phraseMap = [
+      {
+        id: 0,
+        pointers: [0, 1],
+      },
+      {
+        id: 1,
+        pointers: [1, 2],
+      },
     ];
     const styleGuide = [
       {style: 'red'},
-      {style: 'blue'}
+      {style: 'blue'},
     ];
-    const res = colorizer.applyStyles(text, styleMap, styleGuide);
-    console.log(res);
+    const res = colorizer.applyStyles(text, phraseMap, styleGuide)
+      .filter(({props}) => props.children.trim());
     expect(res[0].props.children).to.be.equal('one two');
     expect(res[1].props.children).to.be.equal('three');
     expect(res[2].props.children).to.be.equal('four');
@@ -106,18 +124,25 @@ describe('applyStyles', () => {
     expect(res[1].props.className).to.be.equal('blue');
     expect(res[2].props.className).to.be.equal('');
   });
+
   it('should handle overlapping styles, priority in back', () => {
     const text = "one two three four".split(' ');
-    const stylesheet = [
-      [1],
-      [0, 1],
-      [0]
+    const phraseMap = [
+      {
+        id: 1,
+        pointers: [0, 1],
+      },
+      {
+        id: 0,
+        pointers: [1, 2],
+      },
     ];
     const styleGuide = [
       {style: 'red'},
       {style: 'blue'}
     ];
-    const res = colorizer.applyStyles(text, stylesheet, styleGuide);
+    const res = colorizer.applyStyles(text, phraseMap, styleGuide)
+      .filter(({props}) => props.children.trim());
     expect(res[0].props.children).to.be.equal('one');
     expect(res[1].props.children).to.be.equal('two three');
     expect(res[2].props.children).to.be.equal('four');
@@ -126,20 +151,26 @@ describe('applyStyles', () => {
     expect(res[1].props.className).to.be.equal('red');
     expect(res[2].props.className).to.be.equal('');
   });
+
   it('should handle a phrase at the end of the block', () => {
     const text = "one two three".split(' ');
-    const stylesheet = [
-      [0],
-      [0],
-      [0]
+    const phraseMap = [
+      {
+        id: 0,
+        pointers: [0, 1, 2],
+      },
     ];
     const styleGuide = [
       {style: 'red'},
     ];
-    const res = colorizer.applyStyles(text, stylesheet, styleGuide);
+    const res = colorizer.applyStyles(text, phraseMap, styleGuide)
+      .filter(({props}) => props.children.trim());
 
     expect(res[0].props.children).to.be.equal('one two three');
 
     expect(res[0].props.className).to.be.equal('red');
   });
+  // it('should handle line breaks', () => {
+
+  // });
 });
