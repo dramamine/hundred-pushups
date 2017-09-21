@@ -51,3 +51,61 @@ describe('phraseMatcher', () => {
     expect(stylesheet[6].end[0]).to.be.equal(id);
   });
 });
+
+describe('applyStyles', () => {
+  it('should work ok', () => {
+    const text = "one two three four".split(' ');
+    const stylesheet = [
+      null,
+      {start: [0]},
+      {end: [0]},
+      null
+    ];
+    const styleGuide = [
+      {style: 'red'}
+    ];
+    const res = colorizer.applyStyles(text, stylesheet, styleGuide);
+    console.log(res);
+    expect(res[0]).to.be.equal('one');
+    expect(res[1]).to.be.equal('<span className="red">two');
+    expect(res[2]).to.be.equal('three</span>');
+    expect(res[3]).to.be.equal('four');
+  });
+
+  it('should handle overlapping styles, priority up front', () => {
+    const text = "one two three four".split(' ');
+    const stylesheet = [
+      {start: [0]},
+      {start: [1], end: [0]},
+      {end: [1]}
+    ];
+    const styleGuide = [
+      {style: 'red'},
+      {style: 'blue'}
+    ];
+    const res = colorizer.applyStyles(text, stylesheet, styleGuide);
+    console.log(res);
+    expect(res[0]).to.be.equal('<span className="red">one');
+    expect(res[1]).to.be.equal('two</span><span className="blue">');
+    expect(res[2]).to.be.equal('three</span>');
+    expect(res[3]).to.be.equal('four');
+  });
+  it('should handle overlapping styles, priority in back', () => {
+    const text = "one two three four".split(' ');
+    const stylesheet = [
+      {start: [1]},
+      {start: [0], end: [1]},
+      {end: [0]}
+    ];
+    const styleGuide = [
+      {style: 'red'},
+      {style: 'blue'}
+    ];
+    const res = colorizer.applyStyles(text, stylesheet, styleGuide);
+    console.log(res);
+    expect(res[0]).to.be.equal('<span className="blue">one');
+    expect(res[1]).to.be.equal('</span><span className="red">two');
+    expect(res[2]).to.be.equal('three</span>');
+    expect(res[3]).to.be.equal('four');
+  });
+});

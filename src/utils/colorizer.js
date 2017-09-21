@@ -44,7 +44,68 @@ const phraseMatcher = (text, id, phrase, stylesheet = []) => {
   return stylesheet;
 };
 
+const getStylesheet = (text, styleGuide) => {
+  const textWords = text.split(' ');
+  let styles = [];
+  styleGuide.forEach(({ phrases }, idx) => {
+    phrases.forEach((phrase) => {
+      styles = phraseMatcher(textWords, idx, phrase, styles);
+    });
+  });
+  return styles;
+};
+
+const applyStyles = (text, stylesheet, styleGuide) => {
+  let activeStyle = null;
+
+  let activeStyles = [];
+
+  const result = [];
+  let output = '';
+  for (let i = 0; i < text.length; i++) {
+    output = text[i];
+    console.log('now on index', i, ' with styles:', stylesheet[i]);
+    if (stylesheet[i] && stylesheet[i].start) {
+      activeStyle = activeStyles[0]; // if it's not already.
+      activeStyles = activeStyles.concat(stylesheet[i].start).sort();
+      console.log('now activeStyles is:', activeStyles);
+      const useThisStyle = activeStyles[0];
+      // null, undefined
+      if (activeStyle === undefined) {
+        output = `<span className="${styleGuide[useThisStyle].style}">${output}`;
+      } else {
+        if (useThisStyle < activeStyle) {
+          // kill the old style and start applying the new
+          output = `</span><span className="${styleGuide[useThisStyle].style}">${output}`;
+        }
+      }
+    }
+
+    if (stylesheet[i] && stylesheet[i].end) {
+      activeStyle = activeStyles[0]; // if it's not already.
+
+      console.log('removing ', stylesheet[i].end, ' from ', activeStyles);
+      activeStyles = activeStyles.filter(x => !stylesheet[i].end.includes(x));
+      console.log('result: ', activeStyles, 'while activeStyle is:', activeStyle);
+
+      if (activeStyles.length > 0) {
+        const useThisStyle = activeStyles[0];
+        if (activeStyle !== activeStyles[0]) {
+          output = `${output}</span><span className="${styleGuide[useThisStyle].style}">`;
+        }
+      } else {
+        output = `${output}</span>`;
+      }
+    }
+
+    result.push(output);
+  }
+  return result;
+}
+
 export default {
   phraseMatcher,
   restOfPhraseMatcher,
+  getStylesheet,
+  applyStyles,
 };

@@ -1,6 +1,8 @@
+import styles from '../styles/colorize.css';
+
 const wordlist = [
   {
-    style: 'red',
+    style: styles.red,
     phrases: [
       'action-oriented',
       'alarming',
@@ -10,7 +12,7 @@ const wordlist = [
     ]
   },
   {
-    style: 'green',
+    style: styles.green,
     phrases: [
       'adorable',
       'creative',
@@ -19,7 +21,7 @@ const wordlist = [
     ]
   },
   {
-    style: 'blue',
+    style: styles.blue,
     phrases: [
       'an adorable puppy',
       'aggressive',
@@ -28,7 +30,7 @@ const wordlist = [
     ]
   },
   {
-    style: 'purple',
+    style: styles.purple,
     phrases: [
       'do not cross',
       'log file',
@@ -37,7 +39,7 @@ const wordlist = [
     ]
   },
   {
-    style: 'grey',
+    style: styles.grey,
     phrases: [
       'very unlikely to leave',
       'will deliver new',

@@ -1,3 +1,23 @@
 .default {
   background-color: red;
 }
+
+.red {
+  background-color: #E61616;
+}
+
+.green {
+  background-color: #12B812;
+}
+
+.blue {
+  background-color: #0D8A8A;
+}
+
+.purple {
+  background-color: #880AA3;
+}
+
+.grey {
+  background-color: #AE9B90;
+}
