@@ -1,6 +1,6 @@
 import styles from '../styles/colorize.css';
 
-const wordlist = [
+const styleGuide = [
   {
     style: styles.red,
     phrases: [
@@ -47,4 +47,4 @@ const wordlist = [
   },
 ];
 
-export default wordlist;
+export default styleGuide;

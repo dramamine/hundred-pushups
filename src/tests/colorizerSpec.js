@@ -74,10 +74,15 @@ describe('applyStyles', () => {
       {style: 'red'}
     ];
     const res = colorizer.applyStyles(text, styleMap, styleGuide);
-    expect(res[0]).to.be.equal('one');
-    expect(res[1]).to.be.equal('<span className="red">two');
-    expect(res[2]).to.be.equal('three');
-    expect(res[3]).to.be.equal('</span>four');
+    console.log(res);
+
+    expect(res[0].props.children).to.be.equal('one');
+    expect(res[1].props.children).to.be.equal('two three');
+    expect(res[2].props.children).to.be.equal('four');
+
+    expect(res[0].props.className).to.be.equal('');
+    expect(res[1].props.className).to.be.equal('red');
+    expect(res[2].props.className).to.be.equal('');
   });
 
   it('should handle overlapping styles, priority up front', () => {
@@ -92,10 +97,14 @@ describe('applyStyles', () => {
       {style: 'blue'}
     ];
     const res = colorizer.applyStyles(text, styleMap, styleGuide);
-    expect(res[0]).to.be.equal('<span className="red">one');
-    expect(res[1]).to.be.equal('two');
-    expect(res[2]).to.be.equal('</span><span className="blue">three');
-    expect(res[3]).to.be.equal('</span>four');
+    console.log(res);
+    expect(res[0].props.children).to.be.equal('one two');
+    expect(res[1].props.children).to.be.equal('three');
+    expect(res[2].props.children).to.be.equal('four');
+
+    expect(res[0].props.className).to.be.equal('red');
+    expect(res[1].props.className).to.be.equal('blue');
+    expect(res[2].props.className).to.be.equal('');
   });
   it('should handle overlapping styles, priority in back', () => {
     const text = "one two three four".split(' ');
@@ -109,10 +118,13 @@ describe('applyStyles', () => {
       {style: 'blue'}
     ];
     const res = colorizer.applyStyles(text, stylesheet, styleGuide);
-    expect(res[0]).to.be.equal('<span className="blue">one');
-    expect(res[1]).to.be.equal('</span><span className="red">two');
-    expect(res[2]).to.be.equal('three');
-    expect(res[3]).to.be.equal('</span>four');
+    expect(res[0].props.children).to.be.equal('one');
+    expect(res[1].props.children).to.be.equal('two three');
+    expect(res[2].props.children).to.be.equal('four');
+
+    expect(res[0].props.className).to.be.equal('blue');
+    expect(res[1].props.className).to.be.equal('red');
+    expect(res[2].props.className).to.be.equal('');
   });
   it('should handle a phrase at the end of the block', () => {
     const text = "one two three".split(' ');
@@ -125,8 +137,9 @@ describe('applyStyles', () => {
       {style: 'red'},
     ];
     const res = colorizer.applyStyles(text, stylesheet, styleGuide);
-    expect(res[0]).to.be.equal('<span className="red">one');
-    expect(res[1]).to.be.equal('two');
-    expect(res[2]).to.be.equal('three</span>');
+
+    expect(res[0].props.children).to.be.equal('one two three');
+
+    expect(res[0].props.className).to.be.equal('red');
   });
 });

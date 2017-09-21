@@ -1,4 +1,4 @@
-
+import React from 'react';
 // assuming the first word matches; check the rest of the words in the phrase
 const restOfPhraseMatcher = (text, idx, wordsInPhrase) => {
   for (let i = 1; i < wordsInPhrase.length; i++) { // eslint-disable no-plusplus
@@ -46,37 +46,70 @@ const getStyleMap = (text, styleGuide) => {
   return styleMap;
 };
 
+const writeWordsToSpan = (words, className = '') => {
+  console.log('writing these words to span:', words, className);
+  return (<span className={className}>
+    { words.join(' ') }
+  </span>);
+}
+
 const applyStyles = (text, styleMap, styleGuide) => {
   let activeStyle = null;
 
   const result = [];
-  let tags = '';
+  let wordsInCurrentElement = [];
+
   for (let i = 0; i < text.length; i++) {
-    tags = '';
-    // console.log('considering:', i, activeStyle, styleMap[i]);
-    // check for ending styles first.
-    // apply a close span if:
-    // * there is an active style
-    // * the style for the word we're checking is empty, or different from
-    //   the active style.
-    if (activeStyle !== null &&
-      !(styleMap[i] && styleMap[i].length > 0 && activeStyle === styleMap[i][0])) {
-      tags += '</span>';
-      activeStyle = null;
+    console.log('checking these:', i, styleMap[i], activeStyle);
+
+    // end any styles that don't apply to this word
+    if (activeStyle !== null) {
+      // check current style
+      if (!(styleMap[i] && styleMap[i].length > 0 && activeStyle === styleMap[i][0])) {
+        // style is changing; write to our results
+        result.push(writeWordsToSpan(
+          wordsInCurrentElement, styleGuide[activeStyle].style
+        ));
+
+        activeStyle = null;
+        wordsInCurrentElement = [];
+      }
+      else {
+        // same style; write word and move on
+        wordsInCurrentElement.push(text[i]);
+        continue;
+      }
     }
 
-    if (activeStyle === null && styleMap[i]) {
-      // assuming these are sorted with 0-index being the highest priority
+
+    if (styleMap[i]) {
+      // active style is null but we have a new style to use
+      if (wordsInCurrentElement.length > 0) {
+        result.push(writeWordsToSpan(
+          wordsInCurrentElement
+        ));
+        wordsInCurrentElement = [];
+      }
       activeStyle = styleMap[i][0];
-      tags = `${tags}<span className="${styleGuide[activeStyle].style}">`;
+      wordsInCurrentElement.push(text[i]);
+    } else {
+      // activeStyle is null, and this word does not have a style.
+      wordsInCurrentElement.push(text[i]);
     }
+  }
 
-    result.push(`${tags}${text[i]}`);
+  // any last words?... heh heh
+  if (wordsInCurrentElement.length > 0) {
+    const lastStyle = activeStyle !== null
+        ? styleGuide[activeStyle].style
+        : '';
+    console.log('last words:', activeStyle, wordsInCurrentElement, lastStyle);
+    result.push(writeWordsToSpan(
+      wordsInCurrentElement, lastStyle
+    ));
+    wordsInCurrentElement = [];
   }
-  // close final span if text ends with a phrase
-  if (activeStyle !== null) {
-    result[result.length - 1] += '</span>';
-  }
+
   return result;
 }
 
