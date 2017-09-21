@@ -44,7 +44,6 @@ describe('phraseMatcher', () => {
     const id = "red";
     const phrase = "two three";
     const stylesheet = colorizer.updateStylesWithPhrase(text, id, phrase);
-    console.log(stylesheet);
     expect(stylesheet[1][0]).to.be.equal(id);
     expect(stylesheet[2][0]).to.be.equal(id);
     expect(stylesheet[5][0]).to.be.equal(id);
@@ -75,7 +74,6 @@ describe('applyStyles', () => {
       {style: 'red'}
     ];
     const res = colorizer.applyStyles(text, styleMap, styleGuide);
-    console.log(res);
     expect(res[0]).to.be.equal('one');
     expect(res[1]).to.be.equal('<span className="red">two');
     expect(res[2]).to.be.equal('three');
@@ -94,7 +92,6 @@ describe('applyStyles', () => {
       {style: 'blue'}
     ];
     const res = colorizer.applyStyles(text, styleMap, styleGuide);
-    console.log(res);
     expect(res[0]).to.be.equal('<span className="red">one');
     expect(res[1]).to.be.equal('two');
     expect(res[2]).to.be.equal('</span><span className="blue">three');
@@ -112,7 +109,6 @@ describe('applyStyles', () => {
       {style: 'blue'}
     ];
     const res = colorizer.applyStyles(text, stylesheet, styleGuide);
-    console.log(res);
     expect(res[0]).to.be.equal('<span className="blue">one');
     expect(res[1]).to.be.equal('</span><span className="red">two');
     expect(res[2]).to.be.equal('three');
@@ -129,7 +125,6 @@ describe('applyStyles', () => {
       {style: 'red'},
     ];
     const res = colorizer.applyStyles(text, stylesheet, styleGuide);
-    console.log(res);
     expect(res[0]).to.be.equal('<span className="red">one');
     expect(res[1]).to.be.equal('two');
     expect(res[2]).to.be.equal('three</span>');
