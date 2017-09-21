@@ -23,10 +23,9 @@ class DocDisplay extends Component {
 
   render() {
     const styleMap = this.state.styleMap;
-    const html = colorizer.applyStyles(this.props.text.split(' '), styleMap, this.props.styleGuide)
-      .join(' ');
+    const jsx = colorizer.colorize(this.props.text, styleMap, this.props.styleGuide);
     return (<p className={styles.default}>
-      { html }
+      { jsx }
     </p>);
   }
 }

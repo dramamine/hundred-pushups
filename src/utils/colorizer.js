@@ -47,27 +47,26 @@ const getStyleMap = (text, styleGuide) => {
 };
 
 const writeWordsToSpan = (words, className = '') => {
-  console.log('writing these words to span:', words, className);
-  return (<span className={className}>
-    { words.join(' ') }
-  </span>);
+  const phrase = words.join(' ');
+  return ([<span className={className}>
+    { phrase }
+  </span>, <span>&nbsp;</span>]);
 }
 
 const applyStyles = (text, styleMap, styleGuide) => {
+  console.log('applyStyles called with:', text);
   let activeStyle = null;
 
   const result = [];
   let wordsInCurrentElement = [];
 
   for (let i = 0; i < text.length; i++) {
-    console.log('checking these:', i, styleMap[i], activeStyle);
-
     // end any styles that don't apply to this word
     if (activeStyle !== null) {
       // check current style
       if (!(styleMap[i] && styleMap[i].length > 0 && activeStyle === styleMap[i][0])) {
         // style is changing; write to our results
-        result.push(writeWordsToSpan(
+        result.push(...writeWordsToSpan(
           wordsInCurrentElement, styleGuide[activeStyle].style
         ));
 
@@ -85,7 +84,7 @@ const applyStyles = (text, styleMap, styleGuide) => {
     if (styleMap[i]) {
       // active style is null but we have a new style to use
       if (wordsInCurrentElement.length > 0) {
-        result.push(writeWordsToSpan(
+        result.push(...writeWordsToSpan(
           wordsInCurrentElement
         ));
         wordsInCurrentElement = [];
@@ -103,8 +102,7 @@ const applyStyles = (text, styleMap, styleGuide) => {
     const lastStyle = activeStyle !== null
         ? styleGuide[activeStyle].style
         : '';
-    console.log('last words:', activeStyle, wordsInCurrentElement, lastStyle);
-    result.push(writeWordsToSpan(
+    result.push(...writeWordsToSpan(
       wordsInCurrentElement, lastStyle
     ));
     wordsInCurrentElement = [];
@@ -113,17 +111,16 @@ const applyStyles = (text, styleMap, styleGuide) => {
   return result;
 }
 
-const colorize = (text, styleGuide) => {
-  const paragraphs = text.split('\n');
-  let stylesheet;
-  paragraphs.map(paragraph => {
-    stylesheet = getStylesheet()
-  });
-}
+const colorize = (text, styleMap, styleGuide) => {
+  return (<p> {
+    applyStyles(text.split(' '), styleMap, styleGuide)}
+  </p>);
+};
 
 export default {
   updateStylesWithPhrase,
   restOfPhraseMatcher,
   getStyleMap,
   applyStyles,
+  colorize,
 };

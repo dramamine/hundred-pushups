@@ -15,5 +15,9 @@ stories.add('simple display', () => (
     <DocDisplay text={text('text', 'hello world')} />
   ))
   .add('paragraphs of text', () => (
-    <DocDisplay text={text('text', ipsum)} />
+    <div>{
+    text('text', ipsum).split('\n').map((paragraph, idx) =>
+      <DocDisplay key={idx} text={paragraph} />
+    )
+  }</div>
   ));
