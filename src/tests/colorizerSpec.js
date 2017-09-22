@@ -3,38 +3,38 @@ import { expect } from 'chai';
 
 describe('restOfPhraseMatcher', () => {
   it('should handle one-word phrases', () => {
-    const text = "one two three four".split(' ');
+    const text = 'one two three four'.split(' ');
     const idx = 1;
-    const wordsInPhrase = "two".split(' ');
+    const wordsInPhrase = 'two'.split(' ');
     expect(colorizer.restOfPhraseMatcher(text, idx, wordsInPhrase)).to.be.equal(true);
   });
   it('should handle two word phrases', () => {
-    const text = "one two three four".split(' ');
+    const text = 'one two three four'.split(' ');
     let idx = 1;
-    let wordsInPhrase = "two three".split(' ');
+    let wordsInPhrase = 'two three'.split(' ');
     expect(colorizer.restOfPhraseMatcher(text, idx, wordsInPhrase)).to.be.equal(true);
 
     idx = 2;
-    wordsInPhrase = "three four".split(' ');
+    wordsInPhrase = 'three four'.split(' ');
     expect(colorizer.restOfPhraseMatcher(text, idx, wordsInPhrase)).to.be.equal(true);
 
     idx = 2;
-    wordsInPhrase = "three five".split(' ');
+    wordsInPhrase = 'three five'.split(' ');
     expect(colorizer.restOfPhraseMatcher(text, idx, wordsInPhrase)).to.be.equal(false);
   });
   it('should handle end of phrases', () => {
-    const text = "one two three four".split(' ');
+    const text = 'one two three four'.split(' ');
     const idx = 1;
-    const wordsInPhrase = "four five".split(' ');
+    const wordsInPhrase = 'four five'.split(' ');
     expect(colorizer.restOfPhraseMatcher(text, idx, wordsInPhrase)).to.be.equal(false);
   });
 });
 
 describe('findPhrases', () => {
   it('should create a phrase map with my phrase', () => {
-    const text = "one two three four".split(' ');
+    const text = 'one two three four'.split(' ');
     const id = 4;
-    const phrase = "two three";
+    const phrase = 'two three';
     const phraseMap = colorizer.findPhrases(text, id, phrase);
 
     expect(phraseMap[0].id).to.be.equal(id);
@@ -42,9 +42,9 @@ describe('findPhrases', () => {
     expect(phraseMap[0].pointers.length).to.be.equal(2);
   });
   it('should find two phrases', () => {
-    const text = "one two three four one two three four".split(' ');
-    const id = "red";
-    const phrase = "two three";
+    const text = 'one two three four one two three four'.split(' ');
+    const id = 'red';
+    const phrase = 'two three';
     const phraseMap = colorizer.findPhrases(text, id, phrase);
 
     expect(phraseMap[0].id).to.be.equal(id);
@@ -58,7 +58,7 @@ describe('findPhrases', () => {
     expect(phraseMap[1].pointers.length).to.be.equal(2);
   });
   it('should handle overlapping phrases and passing by reference', () => {
-    const text = "one two three four".split(' ');
+    const text = 'one two three four'.split(' ');
     const phraseMap = [];
     colorizer.findPhrases(text, 'first', 'two three', phraseMap);
     colorizer.findPhrases(text, 'second', 'three four', phraseMap);
@@ -76,18 +76,18 @@ describe('findPhrases', () => {
 
 describe('applyStyles', () => {
   it('should work ok', () => {
-    const text = "one two three four".split(' ');
+    const text = 'one two three four'.split(' ');
     const phraseMap = [
       {
         id: 0,
-        pointers: [1, 2]
-      }
+        pointers: [1, 2],
+      },
     ];
     const styleGuide = [
-      {style: 'red'}
+      { style: 'red' },
     ];
     const res = colorizer.applyStyles(text, phraseMap, styleGuide)
-      .filter(({props}) => props.children.trim());
+      .filter(({ props }) => props.children.trim());
 
     expect(res[0].props.children).to.be.equal('one');
     expect(res[1].props.children).to.be.equal('two three');
@@ -99,7 +99,7 @@ describe('applyStyles', () => {
   });
 
   it('should handle overlapping styles, priority up front', () => {
-    const text = "one two three four".split(' ');
+    const text = 'one two three four'.split(' ');
     const phraseMap = [
       {
         id: 0,
@@ -111,11 +111,11 @@ describe('applyStyles', () => {
       },
     ];
     const styleGuide = [
-      {style: 'red'},
-      {style: 'blue'},
+      { style: 'red' },
+      { style: 'blue' },
     ];
     const res = colorizer.applyStyles(text, phraseMap, styleGuide)
-      .filter(({props}) => props.children.trim());
+      .filter(({ props }) => props.children.trim());
     expect(res[0].props.children).to.be.equal('one two');
     expect(res[1].props.children).to.be.equal('three');
     expect(res[2].props.children).to.be.equal('four');
@@ -126,7 +126,7 @@ describe('applyStyles', () => {
   });
 
   it('should handle overlapping styles, priority in back', () => {
-    const text = "one two three four".split(' ');
+    const text = 'one two three four'.split(' ');
     const phraseMap = [
       {
         id: 1,
@@ -138,11 +138,11 @@ describe('applyStyles', () => {
       },
     ];
     const styleGuide = [
-      {style: 'red'},
-      {style: 'blue'}
+      { style: 'red' },
+      { style: 'blue' },
     ];
     const res = colorizer.applyStyles(text, phraseMap, styleGuide)
-      .filter(({props}) => props.children.trim());
+      .filter(({ props }) => props.children.trim());
     expect(res[0].props.children).to.be.equal('one');
     expect(res[1].props.children).to.be.equal('two three');
     expect(res[2].props.children).to.be.equal('four');
@@ -153,7 +153,7 @@ describe('applyStyles', () => {
   });
 
   it('should handle a phrase at the end of the block', () => {
-    const text = "one two three".split(' ');
+    const text = 'one two three'.split(' ');
     const phraseMap = [
       {
         id: 0,
@@ -161,10 +161,10 @@ describe('applyStyles', () => {
       },
     ];
     const styleGuide = [
-      {style: 'red'},
+      { style: 'red' },
     ];
     const res = colorizer.applyStyles(text, phraseMap, styleGuide)
-      .filter(({props}) => props.children.trim());
+      .filter(({ props }) => props.children.trim());
 
     expect(res[0].props.children).to.be.equal('one two three');
 
@@ -173,7 +173,7 @@ describe('applyStyles', () => {
   it('shouldn\'t remove phrases from our text', () => {
     // this one was to fix a bug with disappearing non-phrase text.
     // text between two phrases wasn't getting written due to wrong mat.
-    let text = `fam 90's salvia whatever mustache. Put a bird on it do not want tattooed cornhole franzen tbh. Narwhal helvetica lyft offal green juice pinterest bitters sriracha irony heirloom action-oriented trust fund.`;
+    const text = 'fam 90\'s salvia whatever mustache. Put a bird on it do not want tattooed cornhole franzen tbh. Narwhal helvetica lyft offal green juice pinterest bitters sriracha irony heirloom action-oriented trust fund.';
     const styleGuide = [
       {
         style: 'red',
@@ -185,7 +185,7 @@ describe('applyStyles', () => {
     ];
     const phraseMap = colorizer.getPhraseMap(text, styleGuide);
     const res = colorizer.applyStyles(text.split(' '), phraseMap, styleGuide)
-      .filter(({props}) => props.children.trim());
+      .filter(({ props }) => props.children.trim());
     expect(res[2].props.children).to.be.equal('tattooed cornhole franzen tbh. Narwhal helvetica lyft offal green juice pinterest bitters sriracha irony heirloom');
   });
   // it('should handle line breaks', () => {
@@ -208,7 +208,7 @@ describe('filterPhraseMap', () => {
         id: 2,
         pointers: [2, 3],
       },
-    ]
+    ];
     const updates = colorizer.filterPhraseMap(phraseMap, 1, 1);
     console.log(updates);
     expect(updates.length).to.be.equal(3);
@@ -225,7 +225,7 @@ describe('filterPhraseMap', () => {
         id: 1,
         pointers: [0, 1, 2],
       },
-    ]
+    ];
     const updates = colorizer.filterPhraseMap(phraseMap, 1, 0);
     expect(updates.length).to.be.equal(2);
     expect(updates[0].hidden).to.be.equal(true);
@@ -240,7 +240,7 @@ describe('filterPhraseMap', () => {
         id: 1,
         pointers: [1, 2],
       },
-    ]
+    ];
     const updates = colorizer.filterPhraseMap(phraseMap, 1, 1);
     console.log(updates);
     expect(updates.length).to.be.equal(2);

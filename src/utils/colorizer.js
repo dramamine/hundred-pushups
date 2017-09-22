@@ -28,7 +28,7 @@ const findPhrases = (text, id, phrase, phrases = []) => {
     cursor = text.indexOf(wordsInPhrase[0], cursor + 1);
   }
   return phrases;
-}
+};
 
 const getPhraseMap = (text, styleGuide) => {
   const textWords = text.split(' ');
@@ -46,7 +46,6 @@ const filterPhraseMap = (phraseMap, phraseMapIdx, phraseStart) => {
   let updatedMap = JSON.parse(JSON.stringify(phraseMap));
   const matchingPhrase = updatedMap[phraseMapIdx];
   if (!matchingPhrase) {
-    console.error('filter bailing:', phraseMap, phraseMapIdx, phraseStart);
     throw new Error('Hover element id didn\'t match any phrases');
   }
   matchingPhrase.pointers.forEach((pointer) => {
@@ -59,13 +58,13 @@ const filterPhraseMap = (phraseMap, phraseMapIdx, phraseStart) => {
           id: phrase.id,
           pointers: phrase.pointers,
           hidden: true,
-        }
+        };
       }
       return phrase;
-    })
+    });
   });
   return updatedMap;
-}
+};
 
 const makeSpanByIndexes = (spanKey, text, start, end, className = '') => {
   const wordsToAdd = [];
@@ -120,11 +119,19 @@ const applyStyles = (text, phraseMap, styleGuide) => {
 
     // we can trust that the first one we find here will interrupt our phrase
     // because we know phraseMap has been sorted.
-    const interruptingPhrase = phraseMap.find(({ id: compareId, pointers: comparePointers, hidden: compareHidden }) => {
-      if (compareId >= id) return false;
+    const interruptingPhrase = phraseMap.find(({
+      id: compareId,
+      pointers: comparePointers,
+      hidden: compareHidden,
+    }) => {
+      // should be hidden by hover
       if (compareHidden) return false;
+      // is lower priority
+      if (compareId >= id) return false;
+
       const compareStart = comparePointers[0];
       if (compareStart > phraseStart && compareStart <= phraseEnd) {
+        // starts before our previous phrase ends
         return true;
       }
       return false;

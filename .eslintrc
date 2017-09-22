@@ -17,6 +17,9 @@
     "func-names": 0,
     # propTypes can be object
     "react/forbid-prop-types": 0,
+    # but I like to??
+    "no-plusplus": 0,
+    # same.
     "no-param-reassign": 0,
   },
 }

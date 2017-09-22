@@ -9,7 +9,7 @@ const styleGuide = [
       'candidates',
       'leave',
       'do not want',
-    ]
+    ],
   },
   {
     style: styles.green,
@@ -18,7 +18,7 @@ const styleGuide = [
       'creative',
       'love',
       'new technology',
-    ]
+    ],
   },
   {
     style: styles.blue,
@@ -27,7 +27,7 @@ const styleGuide = [
       'aggressive',
       'arm',
       'very unlikely',
-    ]
+    ],
   },
   {
     style: styles.purple,
@@ -36,14 +36,14 @@ const styleGuide = [
       'log file',
       'our team',
       'radio',
-    ]
+    ],
   },
   {
     style: styles.grey,
     phrases: [
       'very unlikely to leave',
       'will deliver new',
-    ]
+    ],
   },
 ];
 
