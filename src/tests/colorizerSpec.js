@@ -170,10 +170,29 @@ describe('applyStyles', () => {
 
     expect(res[0].props.className).to.be.equal('red');
   });
+  it('shouldn\'t remove phrases from our text', () => {
+    // this one was to fix a bug with disappearing non-phrase text.
+    // text between two phrases wasn't getting written due to wrong mat.
+    let text = `fam 90's salvia whatever mustache. Put a bird on it do not want tattooed cornhole franzen tbh. Narwhal helvetica lyft offal green juice pinterest bitters sriracha irony heirloom action-oriented trust fund.`;
+    const styleGuide = [
+      {
+        style: 'red',
+        phrases: [
+          'do not want',
+          'action-oriented',
+        ],
+      },
+    ];
+    const phraseMap = colorizer.getPhraseMap(text, styleGuide);
+    const res = colorizer.applyStyles(text.split(' '), phraseMap, styleGuide)
+      .filter(({props}) => props.children.trim());
+    expect(res[2].props.children).to.be.equal('tattooed cornhole franzen tbh. Narwhal helvetica lyft offal green juice pinterest bitters sriracha irony heirloom');
+  });
   // it('should handle line breaks', () => {
-
+    // @TODO not implemented
   // });
 });
+
 describe('filterPhraseMap', () => {
   it('should filter out overlapping phrases with different start/end points', () => {
     const phraseMap = [
@@ -227,5 +246,4 @@ describe('filterPhraseMap', () => {
     expect(updates.length).to.be.equal(2);
     expect(updates[0].hidden).to.be.equal(true);
   });
-
 });

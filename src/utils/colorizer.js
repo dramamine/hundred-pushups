@@ -42,8 +42,9 @@ const getPhraseMap = (text, styleGuide) => {
 };
 
 const filterPhraseMap = (phraseMap, phraseMapIdx, phraseStart) => {
-  const matchingPhrase = phraseMap[phraseMapIdx];
-  let updatedMap = phraseMap;
+  // need a deep copy here, otherwise 'hidden' property persists
+  let updatedMap = JSON.parse(JSON.stringify(phraseMap));
+  const matchingPhrase = updatedMap[phraseMapIdx];
   if (!matchingPhrase) {
     console.error('filter bailing:', phraseMap, phraseMapIdx, phraseStart);
     throw new Error('Hover element id didn\'t match any phrases');
@@ -93,7 +94,7 @@ const applyStyles = (text, phraseMap, styleGuide) => {
   let phraseStart;
   let phraseEnd;
 
-  let spanKey = -1;
+  let spanKey = 1;
 
   phraseMap.forEach(({ id, pointers, hidden = false }, phraseMapIdx) => {
     // hidden by hover state. by skipping this phrase, it will be treated as
@@ -106,7 +107,7 @@ const applyStyles = (text, phraseMap, styleGuide) => {
     if (textCursor < phraseStart) {
       // make a span with any non-phrase words prior to the start of this phrase
       result.push(...makeSpanByIndexes(
-        spanKey++, text, textCursor, phraseStart - textCursor - 1
+        spanKey++, text, textCursor, phraseStart - 1
       ));
     } else if (textCursor > phraseStart) {
       // this phrase is lower priority than the previous one, and got cut off.
@@ -119,8 +120,9 @@ const applyStyles = (text, phraseMap, styleGuide) => {
 
     // we can trust that the first one we find here will interrupt our phrase
     // because we know phraseMap has been sorted.
-    const interruptingPhrase = phraseMap.find(({ id: compareId, pointers: comparePointers }) => {
+    const interruptingPhrase = phraseMap.find(({ id: compareId, pointers: comparePointers, hidden: compareHidden }) => {
       if (compareId >= id) return false;
+      if (compareHidden) return false;
       const compareStart = comparePointers[0];
       if (compareStart > phraseStart && compareStart <= phraseEnd) {
         return true;
