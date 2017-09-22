@@ -41,17 +41,41 @@ const getPhraseMap = (text, styleGuide) => {
   return phraseMap;
 };
 
-const makeSpanByIndexes = (text, start, end, className = '') => {
+const filterPhraseMap = (phraseMap, phraseMapIdx, phraseStart) => {
+  const matchingPhrase = phraseMap[phraseMapIdx];
+  let updatedMap = phraseMap;
+  if (!matchingPhrase) {
+    console.error('filter bailing:', phraseMap, phraseMapIdx, phraseStart);
+    throw new Error('Hover element id didn\'t match any phrases');
+  }
+  matchingPhrase.pointers.forEach((pointer) => {
+    updatedMap = updatedMap.map((phrase) => {
+      // never need to filter out phrases with the same highlight
+      if (!phrase.hidden &&
+          matchingPhrase !== phrase &&
+          phrase.pointers.includes(pointer)) {
+        return {
+          id: phrase.id,
+          pointers: phrase.pointers,
+          hidden: true,
+        }
+      }
+      return phrase;
+    })
+  });
+  return updatedMap;
+}
+
+const makeSpanByIndexes = (spanKey, text, start, end, className = '') => {
   const wordsToAdd = [];
   for (let i = start; i <= end; i++) {
     wordsToAdd.push(text[i]);
   }
   const phrase = wordsToAdd.join(' ');
-  return ([<span className={className}>
+  return ([<span key={spanKey} id={spanKey} className={className}>
     { phrase }
-  </span>, <span>&nbsp;</span>]);
+  </span>, <span key={`sp_${spanKey}`}>&nbsp;</span>]);
 };
-
 
 const applyStyles = (text, phraseMap, styleGuide) => {
   // let activePhrase = null;
@@ -69,14 +93,20 @@ const applyStyles = (text, phraseMap, styleGuide) => {
   let phraseStart;
   let phraseEnd;
 
-  phraseMap.forEach(({ id, pointers }) => {
+  let spanKey = -1;
+
+  phraseMap.forEach(({ id, pointers, hidden = false }, phraseMapIdx) => {
+    // hidden by hover state. by skipping this phrase, it will be treated as
+    // normal text (i.e. text not in a phrase)
+    if (hidden) return;
+
     phraseStart = pointers[0];
     phraseEnd = pointers[pointers.length - 1];
 
     if (textCursor < phraseStart) {
       // make a span with any non-phrase words prior to the start of this phrase
       result.push(...makeSpanByIndexes(
-        text, textCursor, phraseStart - textCursor - 1
+        spanKey++, text, textCursor, phraseStart - textCursor - 1
       ));
     } else if (textCursor > phraseStart) {
       // this phrase is lower priority than the previous one, and got cut off.
@@ -102,9 +132,12 @@ const applyStyles = (text, phraseMap, styleGuide) => {
       phraseEnd = interruptingPhrase.pointers[0] - 1;
     }
 
-    // create our phrase
+    // create our phrase.
+    // here we need to use a special key for our phrase, so that we can find
+    // hover overlaps later. this key lets us figure out the start of the phrase
+    // and its phraseMap index.
     result.push(...makeSpanByIndexes(
-      text, phraseStart, phraseEnd, styleGuide[id].style
+      `${phraseMapIdx}_${phraseStart}`, text, phraseStart, phraseEnd, styleGuide[id].style
     ));
 
     textCursor = phraseEnd + 1;
@@ -113,7 +146,7 @@ const applyStyles = (text, phraseMap, styleGuide) => {
   // any last words?...heh heh
   if (textCursor <= text.length) {
     result.push(...makeSpanByIndexes(
-      text, textCursor, text.length - 1
+      spanKey++, text, textCursor, text.length - 1
     ));
   }
 
@@ -132,4 +165,5 @@ export default {
   applyStyles,
   colorize,
   findPhrases,
+  filterPhraseMap,
 };

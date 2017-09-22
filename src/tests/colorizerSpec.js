@@ -174,3 +174,58 @@ describe('applyStyles', () => {
 
   // });
 });
+describe('filterPhraseMap', () => {
+  it('should filter out overlapping phrases with different start/end points', () => {
+    const phraseMap = [
+      {
+        id: 0,
+        pointers: [0, 1],
+      },
+      {
+        id: 1,
+        pointers: [1, 2],
+      },
+      {
+        id: 2,
+        pointers: [2, 3],
+      },
+    ]
+    const updates = colorizer.filterPhraseMap(phraseMap, 1, 1);
+    console.log(updates);
+    expect(updates.length).to.be.equal(3);
+    expect(updates[0].hidden).to.be.equal(true);
+    expect(updates[2].hidden).to.be.equal(true);
+  });
+  it('should filter out overlapping phrases with the same start points', () => {
+    const phraseMap = [
+      {
+        id: 0,
+        pointers: [0, 1],
+      },
+      {
+        id: 1,
+        pointers: [0, 1, 2],
+      },
+    ]
+    const updates = colorizer.filterPhraseMap(phraseMap, 1, 0);
+    expect(updates.length).to.be.equal(2);
+    expect(updates[0].hidden).to.be.equal(true);
+  });
+  it('should filter out overlapping phrases with the same end points', () => {
+    const phraseMap = [
+      {
+        id: 0,
+        pointers: [0, 1, 2],
+      },
+      {
+        id: 1,
+        pointers: [1, 2],
+      },
+    ]
+    const updates = colorizer.filterPhraseMap(phraseMap, 1, 1);
+    console.log(updates);
+    expect(updates.length).to.be.equal(2);
+    expect(updates[0].hidden).to.be.equal(true);
+  });
+
+});

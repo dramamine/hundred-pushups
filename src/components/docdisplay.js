@@ -11,6 +11,8 @@ class DocDisplay extends Component {
       phraseMap: colorizer.getPhraseMap(props.text, props.styleGuide),
       hoverKey: null,
     };
+
+    this.handleMouseOver = this.handleMouseOver.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -21,10 +23,36 @@ class DocDisplay extends Component {
     });
   }
 
+  handleMouseOver(evt) {
+    console.log('mousing over:', evt.target.id);
+    const hoverKey = evt.target.id;
+
+    // probably doesn't happen
+    if (this.state.hoverKey === hoverKey) return;
+
+    if (evt.target.id && evt.target.id.includes('_')) {
+      const [phraseMapId, phraseStart] = evt.target.id.split('_');
+      this.setState({
+        hoverKey,
+        hoveredPhraseMap: colorizer.filterPhraseMap(
+          this.state.phraseMap,
+          phraseMapId,
+          phraseStart,
+        ),
+      });
+    } else {
+      this.setState({
+        hoverKey: null,
+      });
+    }
+  }
+
   render() {
-    const phraseMap = this.state.phraseMap;
+    const phraseMap = this.state.hoverKey
+      ? this.state.hoveredPhraseMap
+      : this.state.phraseMap;
     const jsx = colorizer.colorize(this.props.text, phraseMap, this.props.styleGuide);
-    return (<p className={styles.default}>
+    return (<p onMouseOver={this.handleMouseOver} className={styles.default}>
       { jsx }
     </p>);
   }
@@ -37,7 +65,7 @@ DocDisplay.defaultProps = {
 
 DocDisplay.propTypes = {
   text: PropTypes.string,
-  styleGuide: PropTypes.object
+  styleGuide: PropTypes.array
 };
 
 export default DocDisplay;

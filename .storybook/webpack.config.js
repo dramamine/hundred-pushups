@@ -8,10 +8,6 @@ module.exports = {
         loader: 'style!css?modules'
       },
       {
-        test: /\.scss$/,
-        loader: 'style!sass?modules'
-      },
-      {
         test: /\.txt$/,
         loader: 'raw'
       }

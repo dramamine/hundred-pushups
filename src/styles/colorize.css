@@ -3,30 +3,67 @@
   font-family: "Charis, serif";
   font-size: 18px;
   line-height: 28.44px;
+  cursor: default;
 }
 
 .default span {
-  border-radius:4px;
   padding: 0px 2px;
   margin: 0px -2px;
+  cursor: pointer;
+  border-radius:4px;
 }
 
 .red {
   background-color: #fb6565;
 }
 
+.red:hover {
+  transition: background-color 0.6s ease;
+  transition: color 0.8s ease;
+  background-color: #000000;
+  color: #ffffff;
+}
+
 .green {
   background-color: #d9f593;
+}
+
+.green:hover {
+  transition: background-color 0.6s ease;
+  transition: color 0.8s ease;
+  background-color: #000000;
+  color: #ffffff;
 }
 
 .blue {
   background-color: #a9e7fe;
 }
 
+.blue:hover {
+  transition: background-color 0.6s ease;
+  transition: color 0.8s ease;
+  background-color: #000000;
+  color: #ffffff;
+}
+
 .purple {
   background-color: #f0b6ff;
 }
 
+.purple:hover {
+  transition: background-color 0.6s ease;
+  transition: color 0.8s ease;
+  background-color: #000000;
+  color: #ffffff;
+}
+
 .grey {
   background-color: #d2d2d2;
+}
+
+.grey:hover {
+  transition: background-color 0.6s ease;
+  transition: color 0.8s ease;
+  background-color: #000000;
+  color: #ffffff;
 }
