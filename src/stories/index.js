@@ -3,7 +3,7 @@ import { storiesOf } from '@kadira/storybook';
 import { withKnobs, text, object } from '@kadira/storybook-addon-knobs';
 
 import DocDisplay from '../components/docdisplay';
-import styleGuide from '../components/styleguide';
+import styleGuide from '../components/styleGuide';
 import ipsum from '../components/ipsum.txt';
 
 const stories = storiesOf('DocDisplay', module);

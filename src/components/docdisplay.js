@@ -1,6 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import colorizer from '../utils/colorizer';
-import styleGuide from './styleguide';
+import styleGuide from './styleGuide';
 import styles from '../styles/colorize.css';
 
 /**
