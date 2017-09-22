@@ -57,11 +57,12 @@ describe('findPhrases', () => {
     expect(phraseMap[1].pointers[1]).to.be.equal(6);
     expect(phraseMap[1].pointers.length).to.be.equal(2);
   });
-  it('should handle overlapping phrases and passing by reference', () => {
+  it('should handle overlapping phrases', () => {
     const text = 'one two three four'.split(' ');
     const phraseMap = [];
-    colorizer.findPhrases(text, 'first', 'two three', phraseMap);
-    colorizer.findPhrases(text, 'second', 'three four', phraseMap);
+    phraseMap.push(...colorizer.findPhrases(text, 'first', 'two three'));
+    phraseMap.push(...colorizer.findPhrases(text, 'second', 'three four'));
+
     expect(phraseMap[0].id).to.be.equal('first');
     expect(phraseMap[0].pointers[0]).to.be.equal(1);
     expect(phraseMap[0].pointers[1]).to.be.equal(2);
@@ -210,7 +211,6 @@ describe('filterPhraseMap', () => {
       },
     ];
     const updates = colorizer.filterPhraseMap(phraseMap, 1, 1);
-    console.log(updates);
     expect(updates.length).to.be.equal(3);
     expect(updates[0].hidden).to.be.equal(true);
     expect(updates[2].hidden).to.be.equal(true);
@@ -242,7 +242,6 @@ describe('filterPhraseMap', () => {
       },
     ];
     const updates = colorizer.filterPhraseMap(phraseMap, 1, 1);
-    console.log(updates);
     expect(updates.length).to.be.equal(2);
     expect(updates[0].hidden).to.be.equal(true);
   });

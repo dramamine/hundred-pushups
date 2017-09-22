@@ -1,13 +1,34 @@
 import React from 'react';
-// assuming the first word matches; check the rest of the words in the phrase
+
+/**
+ * assuming the first word matches; check the rest of the words in the phrase
+ *
+ * @param  {Array} text    Array of words
+ * @param  {Int} idx  The index of the start of the phrase
+ * @param  {Array} wordsInPhrase Array of words in the phrase we're matching
+ *
+ * @return {Boolean} True of the rest of the phrase matches; false otherwise
+ */
 const restOfPhraseMatcher = (text, idx, wordsInPhrase) => {
-  for (let i = 1; i < wordsInPhrase.length; i++) { // eslint-disable no-plusplus
+  for (let i = 1; i < wordsInPhrase.length; i++) {
     if (text[idx + i] !== wordsInPhrase[i]) return false;
   }
   return true;
 };
 
-const findPhrases = (text, id, phrase, phrases = []) => {
+/**
+ * Find occurrences of this phrase in our text.
+ * An occurrence has these properties:
+ *   {String} id: the style id (use this as className when displaying)
+ *   {Array} pointers: An array of indexes to 'text' for each word in the phrase
+ *
+ * @param  {Array} text    Array of words
+ * @param  {String} id     The style id
+ * @param  {String} phrase  The phrase to scan for
+ * @return {Array}         An array of occurrences of this phrase
+ */
+const findPhrases = (text, id, phrase) => {
+  const phrases = [];
   const wordsInPhrase = phrase.split(' ');
   if (wordsInPhrase.length < 1) return phrases;
   let phrasePointers;
@@ -30,18 +51,43 @@ const findPhrases = (text, id, phrase, phrases = []) => {
   return phrases;
 };
 
+/**
+ * Generate a phrase map from the given text and style guide.
+ *
+ * @param  {String} text  The input text
+ * @param  {Object} styleGuide  A style guide. This is an array of objects with
+ * the following properties:
+ *   {String} style: a style ID (import this from CSS modules)
+ *   {Array} phrases: An array of strings (ex. "common phrase") to be highlighted
+ *
+ * @return {Array} An array of phrase occurrences. These are objects with the
+ * following properties:
+ *   {String} id: the style id (use this as className when displaying)
+ *   {Array} pointers: An array of indexes to 'text' for each word in the phrase
+ */
 const getPhraseMap = (text, styleGuide) => {
   const textWords = text.split(' ');
   const phraseMap = [];
   styleGuide.forEach(({ phrases }, idx) => {
     phrases.forEach((phrase) => {
-      findPhrases(textWords, idx, phrase, phraseMap);
+      phraseMap.push(...findPhrases(textWords, idx, phrase));
     });
   });
   return phraseMap;
 };
 
-const filterPhraseMap = (phraseMap, phraseMapIdx, phraseStart) => {
+/**
+ * Take a phrase map, and return a phrase map without any highlighted phrases
+ * that are adjacent to a given phrase.
+ *
+ * @param  {Array} phraseMap  An array of phrase occurrences.
+ * @param  {Int} phraseMapIdx  The index of the 'important' phrase
+ *
+ * @return {Array}  The updated phraseMap. Occurrences will now have the property:
+ *   {Boolean} hidden: true if we should hide this phrase highlighting,
+ *                     undefined otherwise
+ */
+const filterPhraseMap = (phraseMap, phraseMapIdx) => {
   // need a deep copy here, otherwise 'hidden' property persists
   let updatedMap = JSON.parse(JSON.stringify(phraseMap));
   const matchingPhrase = updatedMap[phraseMapIdx];
@@ -66,6 +112,17 @@ const filterPhraseMap = (phraseMap, phraseMapIdx, phraseStart) => {
   return updatedMap;
 };
 
+/**
+ * Make spans out of text.
+ *
+ * @param  {String} spanKey  The key and id that will be written to the span
+ * @param  {String} text     An array of words
+ * @param  {Int} start  The starting index of the phrase
+ * @param  {Int} end    The ending index of the phrase
+ * @param  {String} className  Written to the className property of the span
+ * @return {Array}   An array of JSX. This includes a span for the phrase and
+ *                   a span for a space (you need spaces between your words!)
+ */
 const makeSpanByIndexes = (spanKey, text, start, end, className = '') => {
   const wordsToAdd = [];
   for (let i = start; i <= end; i++) {
@@ -77,6 +134,16 @@ const makeSpanByIndexes = (spanKey, text, start, end, className = '') => {
   </span>, <span key={`sp_${spanKey}`}>&nbsp;</span>]);
 };
 
+/**
+ * Apply styles to your text. You provide locations of phrases and how to style
+ * those phrases; you get JSX back.
+ *
+ * @param  {Array} text       An array of words
+ * @param  {Object} phraseMap  A phrase map
+ * @param  {Object} styleGuide A style guide
+ *
+ * @return {Array}  An array of JSX
+ */
 const applyStyles = (text, phraseMap, styleGuide) => {
   // let activePhrase = null;
   const result = [];
@@ -162,6 +229,14 @@ const applyStyles = (text, phraseMap, styleGuide) => {
   return result;
 };
 
+/**
+ * Apply colors to your text.
+ *
+ * @param  {String} text  The text to colorize
+ * @param  {Object} phraseMap  A phrase map
+ * @param  {Object} styleGuide A style guide
+ * @return {JSX}  A JSX object
+ */
 const colorize = (text, phraseMap, styleGuide) => {
   return (<p> {
     applyStyles(text.split(' '), phraseMap, styleGuide)}

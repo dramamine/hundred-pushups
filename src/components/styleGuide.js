@@ -1,5 +1,10 @@
 import styles from '../styles/colorize.css';
 
+/**
+ * Style guide as described by problem description
+ *
+ * @type {Array}
+ */
 const styleGuide = [
   {
     style: styles.red,
