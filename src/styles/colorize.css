@@ -1,23 +1,32 @@
 .default {
-  background-color: white;
+  color: rgb(86, 83, 84);
+  font-family: "Charis, serif";
+  font-size: 18px;
+  line-height: 28.44px;
+}
+
+.default span {
+  border-radius:4px;
+  padding: 0px 2px;
+  margin: 0px -2px;
 }
 
 .red {
-  background-color: #E61616;
+  background-color: #fb6565;
 }
 
 .green {
-  background-color: #12B812;
+  background-color: #d9f593;
 }
 
 .blue {
-  background-color: #0D8A8A;
+  background-color: #a9e7fe;
 }
 
 .purple {
-  background-color: #880AA3;
+  background-color: #f0b6ff;
 }
 
 .grey {
-  background-color: #AE9B90;
+  background-color: #d2d2d2;
 }

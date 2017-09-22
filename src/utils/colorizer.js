@@ -35,7 +35,7 @@ const getPhraseMap = (text, styleGuide) => {
   const phraseMap = [];
   styleGuide.forEach(({ phrases }, idx) => {
     phrases.forEach((phrase) => {
-      findPhrases(textWords, idx, phrase, findPhrases);
+      findPhrases(textWords, idx, phrase, phraseMap);
     });
   });
   return phraseMap;
@@ -69,7 +69,7 @@ const applyStyles = (text, phraseMap, styleGuide) => {
   let phraseStart;
   let phraseEnd;
 
-  phraseMap.forEach(({id, pointers}) => {
+  phraseMap.forEach(({ id, pointers }) => {
     phraseStart = pointers[0];
     phraseEnd = pointers[pointers.length - 1];
 
@@ -128,8 +128,8 @@ const colorize = (text, phraseMap, styleGuide) => {
 
 export default {
   restOfPhraseMatcher,
+  getPhraseMap,
   applyStyles,
   colorize,
   findPhrases,
-  getPhraseMap,
 };

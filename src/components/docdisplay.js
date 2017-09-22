@@ -5,25 +5,25 @@ import styles from '../styles/colorize.css';
 
 class DocDisplay extends Component {
   constructor(props) {
-    // save our initial styleMap
+    // save our initial phraseMap
     super(props);
     this.state = {
-      styleMap: colorizer.getStyleMap(props.text, props.styleGuide),
+      phraseMap: colorizer.getPhraseMap(props.text, props.styleGuide),
       hoverKey: null,
     };
   }
 
   componentWillReceiveProps(nextProps) {
     // assuming either 'text' or 'styleGuide' changed, so let's recreate
-    // our styleMap
+    // our phraseMap
     this.setState({
-      styleMap: colorizer.getStyleMap(nextProps.text, nextProps.styleGuide),
+      phraseMap: colorizer.getPhraseMap(nextProps.text, nextProps.styleGuide),
     });
   }
 
   render() {
-    const styleMap = this.state.styleMap;
-    const jsx = colorizer.colorize(this.props.text, styleMap, this.props.styleGuide);
+    const phraseMap = this.state.phraseMap;
+    const jsx = colorizer.colorize(this.props.text, phraseMap, this.props.styleGuide);
     return (<p className={styles.default}>
       { jsx }
     </p>);
