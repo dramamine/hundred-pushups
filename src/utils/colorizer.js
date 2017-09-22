@@ -213,7 +213,7 @@ const applyStyles = (text, phraseMap, styleGuide) => {
     // hover overlaps later. this key lets us figure out the start of the phrase
     // and its phraseMap index.
     result.push(...makeSpanByIndexes(
-      `${phraseMapIdx}_${phraseStart}`, text, phraseStart, phraseEnd, styleGuide[id].style
+      `${phraseMapIdx}_`, text, phraseStart, phraseEnd, styleGuide[id].style
     ));
 
     textCursor = phraseEnd + 1;

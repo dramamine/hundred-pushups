@@ -1,6 +1,5 @@
 import React from 'react';
 import { storiesOf } from '@kadira/storybook';
-import { setOptions } from '@kadira/storybook-addon-options';
 import { withKnobs, text, object } from '@kadira/storybook-addon-knobs';
 
 import DocDisplay from '../components/docdisplay';
@@ -10,7 +9,6 @@ import ipsum from '../components/ipsum.txt';
 const stories = storiesOf('DocDisplay', module);
 // knobs let you change props from the front-end... cool!
 stories.addDecorator(withKnobs);
-setOptions({ downPanelInRight: true });
 
 const textLabel = 'input text';
 const stylesLabel = 'style guide';

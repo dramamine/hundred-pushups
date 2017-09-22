@@ -44,13 +44,12 @@ class DocDisplay extends Component {
     if (this.state.hoverKey === hoverKey) return;
 
     if (evt.target.id && evt.target.id.includes('_')) {
-      const [phraseMapIdx, phraseStart] = evt.target.id.split('_');
+      const [phraseMapIdx] = evt.target.id.split('_');
       this.setState({
         hoverKey,
         hoveredPhraseMap: colorizer.filterPhraseMap(
           this.state.phraseMap,
           phraseMapIdx,
-          phraseStart,
         ),
       });
     } else {
